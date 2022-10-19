@@ -5,21 +5,18 @@ import StarWarsContext from './StarWarsContext';
 
 function StarWarsProvider({ children }) {
   const [planetList, setPlanetList] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   const requestPlanets = async () => {
-    setIsLoading(true);
     const endPoint = 'https://swapi.dev/api/planets';
     const response = await fetch(endPoint);
     const { results } = await response.json();
     results.map((e) => delete e.residents);
-    console.log(results);
+    // console.log(results);
     setPlanetList(results);
-    setIsLoading(false);
   };
 
   const contextValue = React.useMemo(() => (
-    { requestPlanets, planetList, isLoading }), [planetList, isLoading]);
+    { requestPlanets, planetList }), [planetList]);
 
   return (
     <StarWarsContext.Provider value={ contextValue }>
