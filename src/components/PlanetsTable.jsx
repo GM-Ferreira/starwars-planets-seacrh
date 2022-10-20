@@ -2,6 +2,10 @@ import React, { useContext, useState, useEffect } from 'react';
 
 import StarWarsContext from '../context/StarWarsContext';
 
+const INITIAL_FILTER = [
+  'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
+];
+
 function PlanetsTable() {
   const [isLoading, setIsLoading] = useState(true);
   const [column, setColumn] = useState([]);
@@ -10,6 +14,7 @@ function PlanetsTable() {
   const [selectedColumn, setSelectedColum] = useState('population');
   const [selectedOperator, setSelectedOperator] = useState('maior que');
   const [selectedValue, setSelectedValue] = useState(0);
+  const [filterOptions, setFilterOptions] = useState(INITIAL_FILTER);
   const [objectsFilters, setObjectsFilters] = useState([]);
 
   const { planetList } = useContext(StarWarsContext);
@@ -28,43 +33,43 @@ function PlanetsTable() {
     const newFiltered = planetList.filter(
       (planet) => planet.name.includes(searchInput),
     );
-    if (objectsFilters.length > 0 && objectsFilters[0].selectedOperator === 'maior que') {
-      const doubleFilter = newFiltered.filter(
-        (objPlanets) => +(objPlanets[objectsFilters[0].selectedColumn])
-          > +(objectsFilters[0].selectedValue),
+    if (objectsFilters.length > 0 && selectedOperator === 'maior que') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          > +(selectedValue),
       );
       console.log('maior que', doubleFilter);
       setFilteredPlanets(doubleFilter);
       setSelectedOperator('maior que');
       setSelectedValue(0);
-      setSelectedColum('population');
+      setSelectedColum(filterOptions[0]);
     }
-    if (objectsFilters.length > 0 && objectsFilters[0].selectedOperator === 'menor que') {
-      const doubleFilter = newFiltered.filter(
-        (objPlanets) => +(objPlanets[objectsFilters[0].selectedColumn])
-          < +(objectsFilters[0].selectedValue),
+    if (objectsFilters.length > 0 && selectedOperator === 'menor que') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          < +(selectedValue),
       );
       console.log('menor que', doubleFilter);
       setFilteredPlanets(doubleFilter);
       setSelectedOperator('maior que');
       setSelectedValue(0);
-      setSelectedColum('population');
+      setSelectedColum(filterOptions[0]);
     }
-    if (objectsFilters.length > 0 && objectsFilters[0].selectedOperator === 'igual a') {
-      const doubleFilter = newFiltered.filter(
-        (objPlanets) => +(objPlanets[objectsFilters[0].selectedColumn])
-          === +(objectsFilters[0].selectedValue),
+    if (objectsFilters.length > 0 && selectedOperator === 'igual a') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          === +(selectedValue),
       );
       console.log('igual a ', doubleFilter);
       setFilteredPlanets(doubleFilter);
       setSelectedOperator('maior que');
       setSelectedValue(0);
-      setSelectedColum('population');
+      setSelectedColum(filterOptions[0]);
     }
     if (objectsFilters.length === 0) {
       setFilteredPlanets(newFiltered);
     }
-  }, [searchInput, planetList, objectsFilters]);
+  }, [searchInput, planetList, objectsFilters, filterOptions]);
 
   // salva novo set de filtros
   function handleClick() {
@@ -72,17 +77,18 @@ function PlanetsTable() {
       selectedColumn, selectedOperator, selectedValue,
     };
     setObjectsFilters((prev) => [...prev, filterOption]);
+    setFilterOptions(filterOptions.filter((e) => e !== selectedColumn));
   }
 
   return (
     <div>
-      <p>teste</p>
       <input
         type="text"
         value={ searchInput }
         onChange={ ({ target }) => setSearchInput(target.value) }
         data-testid="name-filter"
       />
+      <br />
       <label htmlFor="column-filter">
         Colun:
         <select
@@ -92,11 +98,9 @@ function PlanetsTable() {
           value={ selectedColumn }
           onChange={ ({ target }) => setSelectedColum(target.value) }
         >
-          <option value="population">population</option>
-          <option value="orbital_period">orbital_period</option>
-          <option value="diameter">diameter</option>
-          <option value="rotation_period">rotation_period</option>
-          <option value="surface_water">surface_water</option>
+          { filterOptions.map(
+            (filtro) => <option value={ filtro } key={ filtro }>{filtro}</option>,
+          )}
         </select>
       </label>
       <label htmlFor="comparison-filter">
@@ -126,6 +130,23 @@ function PlanetsTable() {
       >
         Filtrar
       </button>
+      { objectsFilters.map((filtro) => (
+        <div key={ filtro.selectedColumn }>
+          <span>
+            {filtro.selectedColumn}
+            {' '}
+            {filtro.selectedOperator}
+            {' '}
+            {filtro.selectedValue}
+          </span>
+          <button
+            type="button"
+            data-testid="button-remove-filters"
+          >
+            Remover
+          </button>
+        </div>
+      ))}
       { isLoading ? <p>Loading...</p>
         : (
           <table>
