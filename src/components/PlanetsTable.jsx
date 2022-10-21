@@ -28,69 +28,92 @@ function PlanetsTable() {
     }
   }, [planetList]);
 
-  // atualização de filtros
   useEffect(() => {
     const newFiltered = planetList.filter(
       (planet) => planet.name.includes(searchInput),
     );
-    if (objectsFilters.length > 0 && selectedOperator === 'maior que') {
-      const doubleFilter = filteredPlanets.filter(
-        (objPlanets) => +(objPlanets[selectedColumn])
-          > +(selectedValue),
-      );
-      console.log('maior que', doubleFilter);
-      setFilteredPlanets(doubleFilter);
-      setSelectedOperator('maior que');
-      setSelectedValue(0);
-      setSelectedColum(filterOptions[0]);
-    }
-    if (objectsFilters.length > 0 && selectedOperator === 'menor que') {
-      const doubleFilter = filteredPlanets.filter(
-        (objPlanets) => +(objPlanets[selectedColumn])
-          < +(selectedValue),
-      );
-      console.log('menor que', doubleFilter);
-      setFilteredPlanets(doubleFilter);
-      setSelectedOperator('maior que');
-      setSelectedValue(0);
-      setSelectedColum(filterOptions[0]);
-    }
-    if (objectsFilters.length > 0 && selectedOperator === 'igual a') {
-      const doubleFilter = filteredPlanets.filter(
-        (objPlanets) => +(objPlanets[selectedColumn])
-          === +(selectedValue),
-      );
-      console.log('igual a ', doubleFilter);
-      setFilteredPlanets(doubleFilter);
-      setSelectedOperator('maior que');
-      setSelectedValue(0);
-      setSelectedColum(filterOptions[0]);
-    }
     if (objectsFilters.length === 0) {
       setFilteredPlanets(newFiltered);
     }
+    setSelectedOperator('maior que');
+    setSelectedValue(0);
+    setSelectedColum(filterOptions[0]);
   }, [searchInput, planetList, objectsFilters, filterOptions]);
 
-  // salva novo set de filtros
+  const functionFilterObject = (filtros) => {
+    // objectsFilters; => filtros salvos
+    // filteredPlanets; => planetas após search digitado que faz o map e monta tabela
+    // planetList; => lista original com todos planetas
+
+    let newArray = [...planetList];
+
+    filtros.forEach((filtro) => {
+      newArray = newArray.filter(
+        (e) => Number(e[filtro.selectedColumn]) > (filtro.selectedValue),
+      );
+    });
+    setFilteredPlanets(newArray);
+  };
+
+  // Salva novo set de filtros
   function handleClick() {
     const filterOption = {
       selectedColumn, selectedOperator, selectedValue,
     };
     setObjectsFilters((prev) => [...prev, filterOption]);
     setFilterOptions(filterOptions.filter((e) => e !== selectedColumn));
+
+    if (selectedOperator === 'maior que') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          > +(selectedValue),
+      );
+      setFilteredPlanets(doubleFilter);
+    }
+    if (selectedOperator === 'menor que') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          < +(selectedValue),
+      );
+      setFilteredPlanets(doubleFilter);
+    }
+    if (selectedOperator === 'igual a') {
+      const doubleFilter = filteredPlanets.filter(
+        (objPlanets) => +(objPlanets[selectedColumn])
+          === +(selectedValue),
+      );
+      setFilteredPlanets(doubleFilter);
+    }
   }
+
+  // Remove filtros parciais
+  const handleRemove = (option) => {
+    setFilterOptions((prev) => [...prev, option]); // coloco o filtro pra ser usado de novo no form
+    setObjectsFilters((prev) => {
+      const filtros = prev.filter((e) => e.selectedColumn !== option);
+      functionFilterObject(filtros);
+      return filtros;
+    }); // tiro ele da lista de filtros aplicados
+  };
+
+  // remove todos os filtros
+  const handleRemoveAll = () => {
+    setFilterOptions(INITIAL_FILTER);
+    setObjectsFilters([]);
+  };
 
   return (
     <div>
       <input
         type="text"
+        placeholder="digite para pesquisar planetas"
         value={ searchInput }
         onChange={ ({ target }) => setSearchInput(target.value) }
         data-testid="name-filter"
       />
       <br />
       <label htmlFor="column-filter">
-        Colun:
+        Column:
         <select
           name="column-filter"
           id="column-filter"
@@ -130,8 +153,15 @@ function PlanetsTable() {
       >
         Filtrar
       </button>
+      <button
+        type="button"
+        data-testid="button-remove-filters"
+        onClick={ () => handleRemoveAll() }
+      >
+        Remover filtros
+      </button>
       { objectsFilters.map((filtro) => (
-        <div key={ filtro.selectedColumn }>
+        <div key={ filtro.selectedColumn } data-testid="filter">
           <span>
             {filtro.selectedColumn}
             {' '}
@@ -141,7 +171,7 @@ function PlanetsTable() {
           </span>
           <button
             type="button"
-            data-testid="button-remove-filters"
+            onClick={ () => handleRemove(filtro.selectedColumn) }
           >
             Remover
           </button>

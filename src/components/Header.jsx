@@ -14,7 +14,7 @@ function Header() {
 
   return (
     <div>
-      Header
+      STAR WARS
     </div>
   );
 }

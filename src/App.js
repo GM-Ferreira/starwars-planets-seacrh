@@ -9,7 +9,6 @@ function App() {
   return (
     <StarWarsProvider>
       <Header />
-      <span>Hello, App!</span>
       <PlanetsTable />
     </StarWarsProvider>
   );
