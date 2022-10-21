@@ -14,12 +14,15 @@ function PlanetsTable() {
   const [selectedColumn, setSelectedColum] = useState('population');
   const [selectedOperator, setSelectedOperator] = useState('maior que');
   const [selectedValue, setSelectedValue] = useState(0);
+  const [selectedSort, setSelectedSort] = useState('population');
+  const [selectedRadio, setSelectedRadio] = useState();
   const [filterOptions, setFilterOptions] = useState(INITIAL_FILTER);
   const [objectsFilters, setObjectsFilters] = useState([]);
+  const [sortButton, setSortButton] = useState(true);
 
   const { planetList } = useContext(StarWarsContext);
 
-  // didmount puxa requisição
+  // componentDidMount
   useEffect(() => {
     setFilteredPlanets(planetList);
     if (planetList.length > 0) {
@@ -28,6 +31,7 @@ function PlanetsTable() {
     }
   }, [planetList]);
 
+  // Update => faz pesquisa com texto digitado
   useEffect(() => {
     const newFiltered = planetList.filter(
       (planet) => planet.name.includes(searchInput),
@@ -40,22 +44,36 @@ function PlanetsTable() {
     setSelectedColum(filterOptions[0]);
   }, [searchInput, planetList, objectsFilters, filterOptions]);
 
+  // Função que confere filtros restantes após remoção e atualiza a lista
   const functionFilterObject = (filtros) => {
     // objectsFilters; => filtros salvos
     // filteredPlanets; => planetas após search digitado que faz o map e monta tabela
     // planetList; => lista original com todos planetas
 
     let newArray = [...planetList];
-
     filtros.forEach((filtro) => {
       newArray = newArray.filter(
-        (e) => Number(e[filtro.selectedColumn]) > (filtro.selectedValue),
+        (e) => {
+          if (filtro.selectedOperator === 'maior que') {
+            const test = Number(e[filtro.selectedColumn]) > (filtro.selectedValue);
+            return test;
+          }
+          if (filtro.selectedOperator === 'menor que') {
+            const test = Number(e[filtro.selectedColumn]) < (filtro.selectedValue);
+            return test;
+          }
+          if (filtro.selectedOperator === 'igual a') {
+            const test = Number(e[filtro.selectedColumn]) === (filtro.selectedValue);
+            return test;
+          }
+          return test;
+        },
       );
     });
     setFilteredPlanets(newArray);
   };
 
-  // Salva novo set de filtros
+  // Salva novo set de filtros e filtra o array com a nova opção
   function handleClick() {
     const filterOption = {
       selectedColumn, selectedOperator, selectedValue,
@@ -88,18 +106,38 @@ function PlanetsTable() {
 
   // Remove filtros parciais
   const handleRemove = (option) => {
-    setFilterOptions((prev) => [...prev, option]); // coloco o filtro pra ser usado de novo no form
+    setFilterOptions((prev) => [...prev, option]);
     setObjectsFilters((prev) => {
       const filtros = prev.filter((e) => e.selectedColumn !== option);
       functionFilterObject(filtros);
       return filtros;
-    }); // tiro ele da lista de filtros aplicados
+    });
   };
 
   // remove todos os filtros
   const handleRemoveAll = () => {
     setFilterOptions(INITIAL_FILTER);
     setObjectsFilters([]);
+  };
+
+  // ordena a lista de planetas
+
+  const handleSort = () => {
+    const sortedPlanets = [...filteredPlanets];
+    if (selectedRadio === 'ASC') {
+      sortedPlanets.sort(
+        (a, b) => b[selectedSort] - a[selectedSort],
+      );
+      sortedPlanets.sort(
+        (a, b) => (a[selectedSort] - b[selectedSort]),
+      );
+      return setFilteredPlanets(sortedPlanets);
+    }
+    if (selectedRadio === 'DESC') {
+      return setFilteredPlanets(sortedPlanets.sort(
+        (a, b) => b[selectedSort] - a[selectedSort],
+      ));
+    }
   };
 
   return (
@@ -153,6 +191,50 @@ function PlanetsTable() {
       >
         Filtrar
       </button>
+      <label htmlFor="comparison-filter">
+        Sort by:
+        <select
+          name="column-sort"
+          id="column-sort"
+          data-testid="column-sort"
+          value={ selectedSort }
+          onChange={ ({ target }) => setSelectedSort(target.value) }
+        >
+          { INITIAL_FILTER.map(
+            (filtro) => <option value={ filtro } key={ filtro }>{filtro}</option>,
+          )}
+        </select>
+      </label>
+      <label htmlFor="ASC">
+        ASC
+        <input
+          type="radio"
+          id="ASC"
+          name="ASC-DESC"
+          data-testid="column-sort-input-asc"
+          value="ASC"
+          onChange={ ({ target }) => setSelectedRadio(target.value) }
+        />
+      </label>
+      <label htmlFor="DESC">
+        DESC
+        <input
+          type="radio"
+          id="DESC"
+          name="ASC-DESC"
+          data-testid="column-sort-input-desc"
+          value="DESC"
+          onChange={ ({ target }) => setSelectedRadio(target.value) }
+        />
+      </label>
+      <button
+        type="button"
+        data-testid="column-sort-button"
+        onClick={ handleSort }
+      >
+        Sort
+      </button>
+      <br />
       <button
         type="button"
         data-testid="button-remove-filters"
@@ -190,7 +272,7 @@ function PlanetsTable() {
             <tbody>
               {filteredPlanets.map((planet) => (
                 <tr key={ planet.name }>
-                  <td>{planet.name}</td>
+                  <td data-testid="planet-name">{planet.name}</td>
                   <td>{planet.rotation_period}</td>
                   <td>{planet.orbital_period}</td>
                   <td>{planet.diameter}</td>
