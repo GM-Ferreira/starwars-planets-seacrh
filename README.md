@@ -1,13 +1,42 @@
-# :construction: README customizado em construção ! :construction:
-<!-- Olá, Tryber!
-Esse é apenas um arquivo inicial para o README do seu projeto no qual você pode customizar e reutilizar todas as vezes que for executar o trybe-publisher.
 
-Para deixá-lo com a sua cara, basta alterar o seguinte arquivo da sua máquina: ~/.student-repo-publisher/custom/_NEW_README.md
+Nesse projeto você irá:
 
-É essencial que você preencha esse documento por conta própria, ok?
-Não deixe de usar nossas dicas de escrita de README de projetos, e deixe sua criatividade brilhar!
-:warning: IMPORTANTE: você precisa deixar nítido:
-- quais arquivos/pastas foram desenvolvidos por você; 
-- quais arquivos/pastas foram desenvolvidos por outra pessoa estudante;
-- quais arquivos/pastas foram desenvolvidos pela Trybe.
--->
+
+-----------------------------------------------
+
+# Bem vindo ao repositório StarWars Planet Search
+
+## Descrição do projeto:
+
+Neste projeto foi desenvolvido uma lista com filtros de planetas do universo de Star Wars usando Context API e Hooks para controlar os estados globais.
+
+O ponto principal do projeto era praticar utilização de filtros cumulativos e gerenciamento do estado da aplicação.
+
+Na aplicação o usuário é capaz de:
+
+- Pesquisar planetas pelo nome
+- Ordenar as informações
+- Aplicar filtros cumulativos
+- Remover filtros parciais independente da ordem de inserção
+- Reiniciar a busca, voltando a lista ao estado original
+
+## Habilidades utilizadas no desenvolvimento:
+
+- Context API do React para gerenciar estado
+- React Hook useState
+- React Hook useContext
+- React Hook useEffect
+- Criação de Hooks customizados
+- Testes unitários.
+
+## Informações da API utilizada
+
+Para realizar o projeto foi utilizado o seguinte endpoints:
+
+- https://swapi.dev/api/planets
+
+## Próximos passos
+
+A aplicação está totalmente funcional, mas são necessários alguns ajustes estéticos como a estilização do projeto, que será feito baseado no seguinte Figma
+
+- https://www.figma.com/file/Z7MzAgaMHyd4DYaLGQX830/%5BProjeto%5D%5BFrontend%5D-StarWars?node-id=0%3A1
